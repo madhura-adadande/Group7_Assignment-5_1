@@ -50,7 +50,7 @@ The system is broken down into three core components:
 LangGraph orchestrates the agent flow, FastAPI connects frontend to backend, and the whole project runs via Docker containers.
 
 ---
-
+[View this project as a Codelab](https://codelabs-preview.appspot.com/?file_id=10JxYB2VVfDPeJeyB4UOgK0hLkW-VULxwzqYZYmiYE_g)
 ##  Walkthrough of the Application
 - Enter a research query and filter by **Year** and **Quarter**
 - Choose agents to trigger:
