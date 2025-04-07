@@ -75,9 +75,3 @@ graph TD
     RAGAgent --> Pinecone[Pinecone Vector DB]
     WebSearchAgent --> WebAPI[SerpAPI / Tavily / Bing]
 
-Contributions
-
-Vemana Anil Kumar – 33%
-Ashwin Badamikar – 33%
-Madhura Adadande – 33%
-WE ATTEST THAT WE HAVEN'T USED ANY OTHER STUDENTS' WORK IN OUR ASSIGNMENT AND ABIDE BY THE POLICIES LISTED IN THE STUDENT HANDBOOK.
