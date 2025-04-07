@@ -63,15 +63,5 @@ LangGraph orchestrates the agent flow, FastAPI connects frontend to backend, and
   - Web insights
 
 
----
 
-graph TD
-    UI[Streamlit Frontend] -->|API Call| FastAPI
-    FastAPI --> LangGraph[LangGraph Multi-Agent Orchestrator]
-    LangGraph --> SnowflakeAgent[Snowflake Agent]
-    LangGraph --> RAGAgent[Pinecone-based RAG Agent]
-    LangGraph --> WebSearchAgent[Real-time Web Search Agent]
-    SnowflakeAgent --> SnowflakeDB[Snowflake Database]
-    RAGAgent --> Pinecone[Pinecone Vector DB]
-    WebSearchAgent --> WebAPI[SerpAPI / Tavily / Bing]
 
