@@ -1,1 +1,10 @@
 .env
+*.git-log
+*.logfile
+logs/
+*.trace
+*.out
+/multienv
+.DS_Store
+__pycache__/
+*.py[cod]
