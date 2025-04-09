@@ -1,143 +1,152 @@
+# frontend/app.py
+import sys
+import os
+
+# Add project root to Python path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, project_root)
+
 import streamlit as st
 import requests
 import json
-import time
+from typing import List, Dict, Any
 
-st.set_page_config(page_title="NVIDIA Research Assistant", layout="wide")
+# Import using full path
+from backend.langgraph.orchestrator import ResearchOrchestrator
 
-API_URL = "http://localhost:8000/query_research_agent"  # ✅ FastAPI backend endpoint
+# API endpoint
+API_URL = "http://localhost:8000"  # Local development
 
-# === PAGE 1: Landing ===
-def landing_page():
-    st.title("🧠 NVIDIA Research Assistant (Multi-Agent)")
-    st.markdown("### Assignment Overview")
+def generate_research_report(query: str, year: int, quarter: int, agents: List[str]) -> Dict[str, Any]:
+    """
+    Send research request to backend API
+    """
+    payload = {
+        "query": query,
+        "year": year,
+        "quarter": quarter,
+        "agents": agents
+    }
 
-    st.markdown("""
-    This research assistant uses **three AI agents** orchestrated via **LangGraph** to generate structured reports on NVIDIA:
+    try:
+        response = requests.post(f"{API_URL}/research", json=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error connecting to research API: {e}")
+        return {}
 
-    - 🧩 **RAG Agent (Pinecone)**: Retrieves historical financial report context using metadata filtering (Year + Quarter).
-    - 📊 **Snowflake Agent**: Connects to Snowflake to query structured valuation data and generates charts + summaries.
-    - 🌐 **Web Search Agent**: Fetches real-time news, trends, and updates from the internet (Tavily API).
+def display_sources(sources: List[str], title: str):
+    """
+    Display sources in an expandable section
+    """
+    with st.expander(f"{title} Sources"):
+        for source in sources:
+            st.write(source)
 
-    ---
-    ### ✅ Key Objectives:
-    - Combine multiple data modalities (structured + unstructured + real-time).
-    - Enable Year/Quarter filtering for contextual insights.
-    - Generate detailed research reports with summaries, visualizations, and sources.
-    - Deploy using Docker with FastAPI backend and Streamlit frontend.
-    """)
+def main():
+    # Set page configuration
+    st.set_page_config(
+        page_title="NVIDIA Research Assistant",
+        page_icon=":chart_with_upwards_trend:",
+        layout="wide"
+    )
 
-# === PAGE 2: Research Assistant ===
-def research_assistant_page():
-    st.title("🔎 Ask NVIDIA a Research Question")
+    # Title and description
+    st.title("🚀 NVIDIA Research Assistant")
+    st.write("Unlock comprehensive insights about NVIDIA using AI-powered research")
 
-    with st.form("query_form"):
-        col1, col2 = st.columns(2)
-        with col1:
-            year = st.selectbox("Select Year", ["2021", "2022", "2023", "2024", "2025"])
-        with col2:
-            quarter = st.selectbox("Select Quarter", ["Q1", "Q2", "Q3", "Q4"])
+    # Query input
+    query = st.text_input(
+        "Research Question", 
+        placeholder="What are the latest developments in NVIDIA's AI technology?"
+    )
 
-        st.markdown("### 🛠️ Choose Agents to Use")
-        use_rag = st.checkbox("RAG Agent (Historical)", value=True)
-        use_snowflake = st.checkbox("Snowflake Agent (Structured Valuation)", value=True)
-        use_web = st.checkbox("Web Search Agent (Real-Time)", value=True)
+    # Filtering options
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        year = st.selectbox(
+            "Select Year", 
+            [None, 2020, 2021, 2022, 2023, 2024],
+            format_func=lambda x: "All Years" if x is None else str(x)
+        )
+    
+    with col2:
+        quarter = st.selectbox(
+            "Select Quarter", 
+            [None, 1, 2, 3, 4],
+            format_func=lambda x: "All Quarters" if x is None else f"Q{x}"
+        )
 
-        query = st.text_area("💬 Enter your research question", placeholder="e.g., How did NVIDIA perform in Q2 2023?")
-        submitted = st.form_submit_button("🚀 Run Research")
+    # Agent selection
+    st.write("### Select Research Sources")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        use_rag = st.checkbox("Historical Data", value=True)
+    with col2:
+        use_snowflake = st.checkbox("Financial Metrics", value=True)
+    with col3:
+        use_websearch = st.checkbox("Latest News", value=True)
 
-    if submitted:
-        if not query.strip():
-            st.warning("Please enter a research question.")
+    # Generate report button
+    if st.button("Generate Research Report", type="primary"):
+        # Validate input
+        if not query:
+            st.warning("Please enter a research question")
             return
 
-        selected_tools = []
+        # Prepare agents list
+        selected_agents = []
         if use_rag:
-            selected_tools.append("rag_retrieve_chunks")
+            selected_agents.append("rag")
         if use_snowflake:
-            selected_tools.append("snowflake_query")
-        if use_web:
-            selected_tools.append("web_search")
+            selected_agents.append("snowflake")
+        if use_websearch:
+            selected_agents.append("websearch")
 
-        if not selected_tools:
-            st.warning("Please select at least one agent.")
-            return
-
-        selected_tools.append("final_answer")  # ✅ Final synthesis is mandatory
-
-        with st.spinner("🔄 Querying agents and generating report..."):
+        # Show loading spinner
+        with st.spinner("Generating comprehensive research report..."):
             try:
-                response = requests.post(API_URL, json={
-                    "query": query,
-                    "year": year,
-                    "quarter": [quarter],
-                    "tools": selected_tools
-                })
-                response.raise_for_status()
-                answer = response.json().get("answer", {})
-                time.sleep(0.3)
-                display_report(answer)
+                # Send request to backend
+                result = generate_research_report(
+                    query, 
+                    year, 
+                    quarter, 
+                    selected_agents
+                )
+
+                # Display report
+                if result:
+                    st.markdown("## Research Report")
+                    st.write(result.get("content", "No report generated"))
+
+                    # Display sources
+                    if "historical_data" in result:
+                        display_sources(
+                            result["historical_data"].get("sources", []), 
+                            "Historical Data"
+                        )
+                    
+                    if "financial_metrics" in result:
+                        display_sources(
+                            result["financial_metrics"].get("sources", []), 
+                            "Financial Metrics"
+                        )
+                    
+                    if "latest_insights" in result:
+                        display_sources(
+                            result["latest_insights"].get("sources", []), 
+                            "Latest Insights"
+                        )
+
+                    # Display chart if available
+                    if "financial_metrics" in result and result["financial_metrics"].get("chart"):
+                        st.image(result["financial_metrics"]["chart"], caption="NVIDIA Market Cap Trend")
+
             except Exception as e:
-                st.error(f"❌ Failed to retrieve response: {e}")
+                st.error(f"Error generating report: {e}")
 
-# === Display Final Report ===
-def display_report(result):
-    st.markdown("## 📄 Research Report")
-
-    if isinstance(result, str):
-        st.markdown("### 🧾 Summary")
-        st.markdown(result)
-        return
-
-    st.markdown("### 🔍 Research Steps")
-    st.code(result.get("research_steps", "Not available"))
-
-    st.markdown("### 🧠 Historical Performance")
-    st.markdown(result.get("historical_performance", "Not available"))
-
-    st.markdown("### 📊 Financial Analysis")
-    financial_block = result.get("financial_analysis", "Not available")
-
-    if isinstance(financial_block, str):
-        lines = financial_block.split("\n")
-        for line in lines:
-            line = line.strip()
-            if line.startswith("https://") and "amazonaws.com" in line and line.endswith(".png"):
-                # Dynamic captions based on filename
-                if "peg" in line:
-                    caption = "PEG Ratio"
-                elif "market_value" in line:
-                    caption = "Market Cap vs Enterprise Value"
-                elif "multiples" in line:
-                    caption = "Enterprise Multiples"
-                else:
-                    caption = "Financial Chart"
-                st.image(line, caption=f"🖼️ {caption}", use_column_width=True)
-            else:
-                st.markdown(line)
-    else:
-        st.markdown(financial_block)
-
-    st.markdown("### 🌍 Industry Insights")
-    st.markdown(result.get("industry_insights", "Not available"))
-
-    st.markdown("### 🧾 Final Summary")
-    st.markdown(result.get("summary", "Not available"))
-
-    st.markdown("### 🔗 Sources")
-    sources = result.get("sources", "Not available")
-    if isinstance(sources, list):
-        for src in sources:
-            st.markdown(f"- {src}")
-    else:
-        st.code(sources)
-
-    with st.expander("🧪 Raw Result (Debug)", expanded=False):
-        st.json(result)
-
-# === Page Router ===
-page = st.sidebar.radio("📁 Select Page", ["🏠 Landing Page", "🤖 Research Assistant"])
-if page == "🏠 Landing Page":
-    landing_page()
-else:
-    research_assistant_page()
+if __name__ == "__main__":
+    main()
