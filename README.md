@@ -20,8 +20,13 @@ The frontend is built with Streamlit, and the backend uses FastAPI. Both are con
 - **Frontend:** Streamlit  
 - **Backend:** FastAPI  
 - **Deployment:** Docker + Render / Railway  
-- **Web Search APIs:** Tavily / SerpAPI  
+- **Web Search APIs:** Tavily / SerpAPI
 
+---
+## Live Links
+
+Frontend: 134.209.221.147:8501
+Backend: 134.209.221.147:8000/docs
 ---
 
 ## Problem Statement
@@ -62,6 +67,7 @@ LangGraph orchestrates the agent flow, FastAPI connects frontend to backend, and
   - Financial visualizations  
   - Web insights
 
+---
 
 
 
