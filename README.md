@@ -1,4 +1,4 @@
-# Assignment 5: Multi-Agent RAG Research Assistant
+# Assignment 5.1: Multi-Agent RAG Research Assistant
 
 **Vemana Anil Kumar**  
 **Ashwin Badamikar**  
