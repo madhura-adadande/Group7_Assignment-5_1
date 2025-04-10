@@ -63,26 +63,7 @@ Our application is a multi-agent research assistant that brings together structu
  A key challenge was ensuring that all agents worked cohesively while maintaining low latency. Metadata filtering in Pinecone was crucial to narrowing down context and improving retrieval accuracy. We also implemented caching mechanisms and validated API inputs using Pydantic models in FastAPI to prevent injection risks and handle bad requests gracefully. The modularity of LangGraph helped in debugging and rerouting flows without disrupting the entire system.
 
 # ARCHITECTURE DIAGRAM:
-
-**mermaid code:**
-graph TD
-    UI[User Interface] -->|Streamlit App| API[API Layer]
-    API -->|FastAPI Backend| LangGraph[LangGraph Orchestration]
-    LangGraph --> Research[Research Oracle/Agent]
-    LangGraph --> Router[Router]
-    LangGraph --> Final[Final Answer Tool]
-    Router --> RAG[RAG Agent]
-    Router --> Snowflake[Snowflake Agent]
-    Router --> WebSearch[Web Search Agent]
-    RAG --> Pinecone[Pinecone Vector DB]
-    Snowflake --> SnowflakeDB[Snowflake DB]
-    WebSearch --> Tavily[Tavily]
-
-    class UI,API,LangGraph,Research,Router,Final,RAG,Snowflake,WebSearch,Tavily fill:#daf2d9,stroke:#4CAF50,stroke-width:2px;
-    class RAG,Snowflake,WebSearch fill:#e6ccff,stroke:#9C27B0,stroke-width:2px;
-
-
-![][image1]
+(![Ass5_arch](https://github.com/user-attachments/assets/2ca37cfa-e372-4182-8824-0bd4117819d3)
 
 # WALKTHROUGH OF THE APPLICATION.
 
