@@ -20,13 +20,17 @@ The frontend is built with Streamlit, and the backend uses FastAPI. Both are con
 - **Frontend:** Streamlit  
 - **Backend:** FastAPI  
 - **Deployment:** Docker + Render / Railway  
-- **Web Search APIs:** Tavily / SerpAPI
+- **Web Search APIs:** Tavily
 
 ---
 ## Live Links
 
-Frontend: 134.209.221.147:8501
-Backend: 134.209.221.147:8000/docs
+Frontend: http://134.209.221.147:8501/
+
+Backend: http://134.209.221.147:8000/docs
+
+Codelabs link: https://codelabs-preview.appspot.com/?file_id=10JxYB2VVfDPeJeyB4UOgK0hLkW-VULxwzqYZYmiYE_g#4
+
 ---
 
 ## Problem Statement
